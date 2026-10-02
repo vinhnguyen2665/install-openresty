@@ -1,0 +1,22 @@
+services:
+  openresty-lab:
+    build: ./ # Chỉ đường dẫn đến thư mục chứa Dockerfile ở trên để tự động build
+    container_name: ubuntu_openresty_lab
+    ports:
+      - "8080:80" # Mở port 8080 trên máy thật nối vào port 80 (mặc định của OpenResty) bên trong container
+      - "127.0.0.1:9145:9145" # Chỉ publish metrics trên localhost host
+    volumes:
+      - ./html:/usr/local/openresty/nginx/html
+      - ./includes:/usr/local/openresty/nginx/conf/includes:ro
+      - ./ssl:/usr/local/openresty/nginx/ssl
+    restart: always
+    networks:
+      - metrics-net
+
+networks:
+  metrics-net:
+    name: openresty-metrics-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24

@@ -1,0 +1,4 @@
+include:
+  - path: ./docker-compose-openresty.yml
+  - path: ./docker-compose-prometheus.yml
+  - path: ./docker-compose-grafana.yml

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -e
+
+# echo "==> Cau hinh bien moi truong PATH..."
+# export NGINX_PATH="/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin"
+# if ! grep -q "/usr/local/openresty" /etc/profile; then
+#     echo "export PATH=\$PATH:${NGINX_PATH}" >> /etc/profile
+# fi
+# export PATH="$PATH:${NGINX_PATH}"
+
+# CONF_FILE="/usr/local/openresty/nginx/conf/nginx.conf"
+
+if [ -f "$CONF_FILE" ]; then
+    opm get knyar/nginx-lua-prometheus
+
+    echo "==> Cap nhat cau hinh nginx.conf cho metrics..."
+
+awk '
+    # --- LUOT 1: Quet file de kiem tra xem da ton tai shared_dict chua ---
+    NR == FNR {
+        if ($0 ~ /lua_shared_dict *prometheus_metrics/) {
+            exists = 1
+        }
+        next
+    }
+
+    # --- LUOT 2: Xu ly ghi/chen noi dung ---
+    # Neu chua ton tai va tim thay khoi http {, thuc hien chen
+    !exists && !done && /http *\{/ {
+        print $0
+        print "    # Khai bao shared memory cho cac chi so"
+        print "    lua_shared_dict prometheus_metrics 10M;"
+        print "    "
+        print "    # Khoi tao thu vien"
+        print "    init_by_lua_block {"
+        print "        prometheus = require(\"prometheus\").init(\"prometheus_metrics\")"
+        print "        "
+        print "        -- Tao mot metric dem so luong request"
+        print "        metric_requests = prometheus:counter("
+        print "            \"nginx_http_requests_total\", \"Number of HTTP requests\", {\"host\", \"status\"}"
+        print "        )"
+        print "        -- Tao metric do thoi gian xu ly request"
+        print "        metric_latency = prometheus:histogram("
+        print "            \"nginx_http_request_duration_seconds\", \"HTTP request latency\", {\"host\"}"
+        print "        )"
+        print "    }"
+        print ""
+        print "    # Dong bo hoa worker processes"
+        print "    init_worker_by_lua_block {"
+        print "        prometheus:init_worker()"
+        print "    }"
+        print ""
+        print "    # nginx-lua-prometheus"
+        print "    log_by_lua_block {"
+        print "        metric_requests:inc(1, {ngx.var.host, ngx.var.status})"
+        print "        metric_latency:observe(tonumber(ngx.var.request_time), {ngx.var.server_name})"
+        print "    }"
+        print ""
+        done = 1
+        next
+    }
+    
+    { print }
+    ' /usr/local/openresty/nginx/conf/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf > /usr/local/openresty/nginx/conf/nginx.conf.tmp \
+    && cp /usr/local/openresty/nginx/conf/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.bak \
+    && mv /usr/local/openresty/nginx/conf/nginx.conf.tmp /usr/local/openresty/nginx/conf/nginx.conf
+
+    touch /usr/local/openresty/nginx/conf/sites-available/metrics.conf
+    truncate -s 0 /usr/local/openresty/nginx/conf/sites-available/metrics.conf
+
+    printf "server {\n\tlisten 9145;\n\tallow 127.0.0.1;\n\t# allow 172.18.0.0/16;\n\n\tlocation /metrics {\n\t\tcontent_by_lua_block {\n\t\t\tprometheus:collect()\n\t\t}\n\t}\n}\n" > /usr/local/openresty/nginx/conf/sites-available/metrics.conf
+
+
+    ln -s /usr/local/openresty/nginx/conf/sites-available/metrics.conf /usr/local/openresty/nginx/conf/sites-enabled/
+
+    cat /usr/local/openresty/nginx/conf/nginx.conf
+else
+    echo "Canh bao: Khong tim thay file $CONF_FILE"
+fi
+echo "==> Cai dat thanh cong OpenResty metrics!"

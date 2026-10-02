@@ -1,0 +1,19 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_dashboard
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: always
+    networks:
+      - metrics-net
+
+networks:
+  metrics-net:
+    name: openresty-metrics-net
+    external: true
+
+volumes:
+  grafana-storage:

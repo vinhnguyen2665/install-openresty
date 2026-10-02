@@ -1,0 +1,43 @@
+FROM ubuntu:24.04
+
+# dinh nghaa phien ban OpenResty muon cai dat thu nghiem
+#export OPENRESTY_VERSION=1.31.1.1 
+ENV OPENRESTY_VERSION=1.31.1.1 
+
+
+# Bước 1: cai dat cac goi phu thuoc (Prerequisites) duoc khuyen nghi cho Ubuntu
+RUN apt update
+RUN apt install -y build-essential libpcre3-dev libssl-dev zlib1g-dev perl make curl wget iputils-ping nano net-tools
+RUN apt clean 
+# RUN rm -rf /var/lib/apt/lists/*
+
+# Bước 2: Tải mã nguồn OpenResty, giải nén, biên dịch và cài đặt
+WORKDIR /usr/local/src
+RUN wget https://openresty.org/download/openresty-${OPENRESTY_VERSION}.tar.gz \
+    && tar -xzvf openresty-${OPENRESTY_VERSION}.tar.gz \
+    && cd openresty-${OPENRESTY_VERSION} \
+    && ./configure --with-pcre-jit --with-ipv6 -j2 \
+    && make -j2 \
+    && make install \
+    && cd .. \
+    && rm -rf openresty-${OPENRESTY_VERSION}*
+
+# Bước 3: bien moi truong PATH
+#export PATH=/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin:$PATH
+ENV PATH=/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin:$PATH
+
+# Bước 4: Cau hinh Nginx (OpenResty) detu dong nhan dien so luonng CPU
+RUN sed -i -E 's/^([[:space:]]*)(worker_processes[[:space:]]+[^;]+;)/# \1\2\n\1worker_processes  auto;/' /usr/local/openresty/nginx/conf/nginx.conf
+
+# su dung IP thực cua client khi đi qua Cloudflare
+RUN sed -i '/default_type  application\/octet-stream;/a \ \n     map $http_cf_connecting_ip $real_client_ip {\n            default $http_cf_connecting_ip;\n            ""      $remote_addr;  # fallback neu header không co\n    }' /usr/local/openresty/nginx/conf/nginx.conf
+
+# Tao san cac thu muc nay de tranh loi Nginx khong tim thay duong dan khi khoi dong
+RUN mkdir -p /usr/local/openresty/nginx/conf/conf.d /usr/local/openresty/nginx/conf/sites-enabled /usr/local/openresty/nginx/conf/sites-available
+# Tu dong chen 2 dong include vao truoc dau } cuai cung cua nginx.conf
+RUN sed -i '$s/}/    gzip  on;\n    include \/usr\/local\/openresty\/nginx\/conf\/sites-enabled\/conf.d\/*.conf;\n    include \/usr\/local\/openresty\/nginx\/conf\/sites-enabled\/*;\n}/' /usr/local/openresty/nginx/conf/nginx.conf
+# Thiet lap thu muc lam viec mac dinh khi truy cap vao container
+WORKDIR /usr/local/openresty
+
+# Giu container chay ngam (Detached mode) de lam LAB bang cach chay OpenResty o foreground
+CMD ["openresty", "-g", "daemon off;"]
