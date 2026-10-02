@@ -90,13 +90,16 @@ Mở `http://localhost:8080`. Khi scrape container OpenResty bằng Prometheus, 
 
 ## Cấu hình chính
 
-- `includes/default-site.conf`: virtual host mặc định, security headers, WAF và giới hạn request.
-- `includes/waf.conf`: kiểm tra blacklist, phát hiện vi phạm và ghi metrics.
-- `includes/00-shared-memory.conf`: shared memory cho blacklist và violation tracker.
-- `includes/rate_limit.conf`, `includes/rate_limit_location.conf`: cấu hình giới hạn request.
-- `includes/lua_unban_api.conf`: API unban chỉ truy cập từ loopback.
-- `includes/cloudflare-realip.conf`: dải IP Cloudflare được tin cậy; giữ cấu hình này nếu traffic thực sự đi qua Cloudflare.
-- `includes/ssl_it.local_certificate.conf` và `ssl/`: chứng chỉ tự ký dùng cho môi trường lab.
+- `includes/site/default-site.conf`: virtual host mặc định, security headers, WAF và giới hạn request.
+- `includes/site/lua_unban_api.conf`: API unban chỉ truy cập từ loopback.
+- `includes/site/proxy.conf`: cấu hình reverse proxy template.
+- `includes/security/waf.conf`: kiểm tra blacklist, phát hiện vi phạm và ghi metrics.
+- `includes/security/00-shared-memory.conf`: shared memory cho blacklist và violation tracker.
+- `includes/security/rate_limit.conf`, `includes/security/rate_limit_location.conf`: cấu hình giới hạn request.
+- `includes/security/cloudflare-realip.conf`: dải IP Cloudflare được tin cậy; giữ cấu hình này nếu traffic thực sự đi qua Cloudflare.
+- `includes/security/security-headers.conf`, `includes/security/basic-*.conf`, `includes/security/strict-transport-security.conf`: các HTTP security headers.
+- `includes/log/json_log_format.conf`, `includes/log/time_iso8601.conf`: định dạng log JSON và bóc tách thời gian ISO8601.
+- `includes/ssl/ssl_it.local_certificate.conf`, `includes/ssl/force-ssl.conf` và `ssl/`: chứng chỉ tự ký và cấu hình HTTPS.
 - `prometheus.yml`: cấu hình scrape metrics của OpenResty.
 
 ## Gỡ cài đặt bản host

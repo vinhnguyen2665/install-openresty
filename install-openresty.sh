@@ -144,12 +144,16 @@ if [ -f "$CONF_FILE" ]; then
         cp -a "${SCRIPT_DIR}/includes/." /usr/local/openresty/nginx/conf/includes/
     fi
 
-    for include_file in 00-shared-memory.conf cloudflare-realip.conf json_log_format.conf rate_limit.conf time_iso8601.conf; do
-        ln -sfn "/usr/local/openresty/nginx/conf/includes/${include_file}" \
-            "/usr/local/openresty/nginx/conf/conf.d/${include_file}"
+    for security_file in 00-shared-memory.conf cloudflare-realip.conf rate_limit.conf; do
+        ln -sfn "/usr/local/openresty/nginx/conf/includes/security/${security_file}" \
+            "/usr/local/openresty/nginx/conf/conf.d/${security_file}"
+    done
+    for log_file in json_log_format.conf time_iso8601.conf; do
+        ln -sfn "/usr/local/openresty/nginx/conf/includes/log/${log_file}" \
+            "/usr/local/openresty/nginx/conf/conf.d/${log_file}"
     done
     for site_file in default-site.conf lua_unban_api.conf; do
-        ln -sfn "/usr/local/openresty/nginx/conf/includes/${site_file}" \
+        ln -sfn "/usr/local/openresty/nginx/conf/includes/site/${site_file}" \
             "/usr/local/openresty/nginx/conf/sites-enabled/${site_file}"
     done
 
