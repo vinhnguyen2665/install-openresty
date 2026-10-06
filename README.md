@@ -104,8 +104,16 @@ Mở `http://localhost:8080`. Khi scrape container OpenResty bằng Prometheus, 
 
 ## Gỡ cài đặt bản host
 
+Mặc định, script gỡ cài đặt sẽ giữ lại các vhost trong `sites-available` và `sites-enabled`, đồng thời chuyển `conf.d` thành `conf.d.old` và `includes` thành `includes.old` trong `/usr/local/openresty/nginx/conf/`:
+
 ```bash
 sudo ./uninstall.sh
+```
+
+Nếu muốn xóa sạch toàn bộ thư mục `/usr/local/openresty` bao gồm tất cả các file cấu hình như trước đây, hãy truyền thêm cờ `--clean`:
+
+```bash
+sudo ./uninstall.sh --clean
 ```
 
 `install-openresty.sh` hiện tải source với `--no-check-certificate` theo cấu hình được giữ lại trong dự án.
