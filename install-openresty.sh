@@ -138,13 +138,17 @@ if [ -f "$CONF_FILE" ]; then
 
     # Install shared include files in both container and host installs.
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    echo "${SCRIPT_DIR}"
-    if (is_in_container || is_docker_compose) && [ -d /tmp/openresty-includes ]; then
-        cp -ra /tmp/openresty-includes /usr/local/openresty/nginx/conf/
-    elif [ -d "${SCRIPT_DIR}/includes" ]; then
-        cp -ra "${SCRIPT_DIR}/includes" /usr/local/openresty/nginx/conf/
+    echo "SCRIPT_DIR: $SCRIPT_DIR"
+    # Kiem tra neu KHONG phai container VA KHONG phai docker compose
+    if ! is_in_container && ! is_docker_compose; then
+        # Xu ly khi dang chay truc tiep o may Host
+        echo "==> Dang chay truc tiep tren may Host"
+        echo "==> Shared includes installed for host deployment"
+        if [ -d "${SCRIPT_DIR}/includes" ]; then
+            cp -ra "${SCRIPT_DIR}/includes" /usr/local/openresty/nginx/conf/
+        fi
     fi
-
+    
     for security_file in 00-shared-memory.conf cloudflare-realip.conf rate_limit.conf; do
         ln -sfn "/usr/local/openresty/nginx/conf/includes/security/${security_file}" \
             "/usr/local/openresty/nginx/conf/conf.d/${security_file}"
@@ -157,13 +161,6 @@ if [ -f "$CONF_FILE" ]; then
         ln -sfn "/usr/local/openresty/nginx/conf/includes/site/${site_file}" \
             "/usr/local/openresty/nginx/conf/sites-enabled/${site_file}"
     done
-
-    # Kiem tra neu KHONG phai container VA KHONG phai docker compose
-    if ! is_in_container && ! is_docker_compose; then
-        # Xu ly khi dang chay truc tiep o may Host
-        echo "==> Dang chay truc tiep tren may Host"
-        echo "==> Shared includes installed for host deployment"
-    fi
 
     # Tao san 1 file config mau/fallback de tranh loi glob include khi thu muc trong
     touch /usr/local/openresty/nginx/conf/conf.d/default.conf
