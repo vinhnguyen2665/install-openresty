@@ -138,7 +138,8 @@ if [ -f "$CONF_FILE" ]; then
 
     # Install shared include files in both container and host installs.
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    if [ -d /tmp/openresty-includes ]; then
+    echo "${SCRIPT_DIR}"
+    if (is_in_container || is_docker_compose) && [ -d /tmp/openresty-includes ]; then
         cp -ra /tmp/openresty-includes /usr/local/openresty/nginx/conf/
     elif [ -d "${SCRIPT_DIR}/includes" ]; then
         cp -ra "${SCRIPT_DIR}/includes" /usr/local/openresty/nginx/conf/
