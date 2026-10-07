@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "SCRIPT_DIR: $SCRIPT_DIR"
 # Khai bao phien ban
 export OPENRESTY_VERSION=1.31.1.1 
 export NGINX_PATH="/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin"
@@ -137,8 +139,6 @@ if [ -f "$CONF_FILE" ]; then
              /usr/local/openresty/nginx/conf/includes
 
     # Install shared include files in both container and host installs.
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    echo "SCRIPT_DIR: $SCRIPT_DIR"
     # Kiem tra neu KHONG phai container VA KHONG phai docker compose
     if ! is_in_container && ! is_docker_compose; then
         # Xu ly khi dang chay truc tiep o may Host
