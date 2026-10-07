@@ -139,9 +139,9 @@ if [ -f "$CONF_FILE" ]; then
     # Install shared include files in both container and host installs.
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     if [ -d /tmp/openresty-includes ]; then
-        cp -a /tmp/openresty-includes/. /usr/local/openresty/nginx/conf/includes/
+        cp -ra /tmp/openresty-includes /usr/local/openresty/nginx/conf/
     elif [ -d "${SCRIPT_DIR}/includes" ]; then
-        cp -a "${SCRIPT_DIR}/includes/." /usr/local/openresty/nginx/conf/includes/
+        cp -ra "${SCRIPT_DIR}/includes" /usr/local/openresty/nginx/conf/
     fi
 
     for security_file in 00-shared-memory.conf cloudflare-realip.conf rate_limit.conf; do
