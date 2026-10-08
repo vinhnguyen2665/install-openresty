@@ -90,6 +90,9 @@ if [ -f "$CONF_FILE" ]; then
         print "    init_worker_by_lua_block {"
         print "        prometheus:init_worker()"
         print "    }"
+        print "    "
+        print "    proxy_headers_hash_max_size 1024;"
+        print "    proxy_headers_hash_bucket_size 128;"
         print ""
         done = 1
         next
