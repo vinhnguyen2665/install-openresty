@@ -9,6 +9,7 @@ export NGINX_PATH="/usr/local/openresty/bin:/usr/local/openresty/nginx/sbin"
 export CONF_FILE="/usr/local/openresty/nginx/conf/nginx.conf"
 echo "==> NGINX_PATH: $NGINX_PATH"
 
+rm -rf "$SCRIPT_DIR/quictls"
 git clone https://github.com/quictls/quictls "$SCRIPT_DIR/quictls"
 # Ham kiem tra xem co dang chay trong container hay khong
 is_in_container() {
@@ -105,7 +106,7 @@ CPU_CORES=$(nproc)
     --with-http_auth_request_module \
     --with-threads \
     --with-file-aio \
-    --with-openssl=./quictls \
+    --with-openssl= "$SCRIPT_DIR/quictls" \
     $EXTRA_CONFIGURE_FLAGS \
     -j"$CPU_CORES"
 
