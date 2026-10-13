@@ -13,7 +13,7 @@ rm -rf "$SCRIPT_DIR/quictls"
 # git clone https://github.com/quictls/quictls "$SCRIPT_DIR/quictls"
 # clone openssl-3.1.x+quic
 echo "git clone openssl-3.1.7+quic https://github.com/quictls/openssl"
-git clone --depth 1 -b openssl-3.1.7+quic https://github.com/quictls/openssl "$SCRIPT_DIR/quictls"
+git clone --depth 1 -b openssl-3.1.7+quic https://github.com/vinhnguyen2665/quictls_openssl.git "$SCRIPT_DIR/quictls"
 
 # Ham kiem tra xem co dang chay trong container hay khong
 is_in_container() {
@@ -101,7 +101,7 @@ CPU_CORES=$(nproc)
     --with-stream \
     --with-stream_ssl_module \
     --with-stream_ssl_preread_module \
-    --with-cc-opt="-O2 -DNGX_QUIC_OPENSSL_COMPAT" \
+    --with-cc-opt="-O2" \
     --with-http_v2_module \
     --with-http_realip_module \
     --with-http_gzip_static_module \
