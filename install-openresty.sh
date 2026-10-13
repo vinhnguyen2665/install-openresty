@@ -10,7 +10,11 @@ export CONF_FILE="/usr/local/openresty/nginx/conf/nginx.conf"
 echo "==> NGINX_PATH: $NGINX_PATH"
 
 rm -rf "$SCRIPT_DIR/quictls"
-git clone https://github.com/quictls/quictls "$SCRIPT_DIR/quictls"
+# git clone https://github.com/quictls/quictls "$SCRIPT_DIR/quictls"
+# clone openssl-3.1.x+quic
+echo "git clone openssl-3.1.x+quic https://github.com/quictls/openssl"
+git clone --depth 1 -b openssl-3.1.x+quic https://github.com/quictls/openssl "$SCRIPT_DIR/quictls"
+
 # Ham kiem tra xem co dang chay trong container hay khong
 is_in_container() {
     # 1. Kiem tra file /.dockerenv (Docker tu tao khi khoi chay container)
