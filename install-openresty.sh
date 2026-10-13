@@ -106,7 +106,7 @@ CPU_CORES=$(nproc)
     --with-http_auth_request_module \
     --with-threads \
     --with-file-aio \
-    --with-openssl= "$SCRIPT_DIR/quictls" \
+    --with-openssl="$SCRIPT_DIR/quictls" \
     $EXTRA_CONFIGURE_FLAGS \
     -j"$CPU_CORES"
 
