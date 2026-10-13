@@ -95,7 +95,7 @@ CPU_CORES=$(nproc)
     --with-stream \
     --with-stream_ssl_module \
     --with-stream_ssl_preread_module \
-    --with-cc-opt="-O2" \
+    --with-cc-opt="-O2 -DNGX_QUIC_OPENSSL_COMPAT" \
     --with-http_v2_module \
     --with-http_realip_module \
     --with-http_gzip_static_module \
@@ -106,6 +106,7 @@ CPU_CORES=$(nproc)
     --with-file-aio \
     $EXTRA_CONFIGURE_FLAGS \
     -j"$CPU_CORES"
+
 
 make -j"$CPU_CORES"
 make install
